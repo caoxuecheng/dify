@@ -1,6 +1,15 @@
 from typing import Annotated, Literal, Optional
 
-from pydantic import AliasChoices, Field, HttpUrl, NegativeInt, NonNegativeInt, PositiveInt, computed_field
+from pydantic import (
+    AliasChoices,
+    Field,
+    HttpUrl,
+    NegativeInt,
+    NonNegativeInt,
+    PositiveFloat,
+    PositiveInt,
+    computed_field,
+)
 from pydantic_settings import BaseSettings
 
 from configs.feature.hosted_service import HostedServiceConfig
@@ -483,6 +492,11 @@ class MailConfig(BaseSettings):
         default=False,
     )
 
+    EMAIL_SEND_IP_LIMIT_PER_MINUTE: PositiveInt = Field(
+        description="Maximum number of emails allowed to be sent from the same IP address in a minute",
+        default=50,
+    )
+
 
 class RagEtlConfig(BaseSettings):
     """
@@ -625,6 +639,33 @@ class PositionConfig(BaseSettings):
         return {item.strip() for item in self.POSITION_TOOL_EXCLUDES.split(",") if item.strip() != ""}
 
 
+class LoginConfig(BaseSettings):
+    ENABLE_EMAIL_CODE_LOGIN: bool = Field(
+        description="whether to enable email code login",
+        default=False,
+    )
+    ENABLE_EMAIL_PASSWORD_LOGIN: bool = Field(
+        description="whether to enable email password login",
+        default=True,
+    )
+    ENABLE_SOCIAL_OAUTH_LOGIN: bool = Field(
+        description="whether to enable github/google oauth login",
+        default=False,
+    )
+    EMAIL_CODE_LOGIN_TOKEN_EXPIRY_HOURS: PositiveFloat = Field(
+        description="expiry time in hours for email code login token",
+        default=1 / 12,
+    )
+    ALLOW_REGISTER: bool = Field(
+        description="whether to enable register",
+        default=True,
+    )
+    ALLOW_CREATE_WORKSPACE: bool = Field(
+        description="whether to enable create workspace",
+        default=False,
+    )
+
+
 class FeatureConfig(
     # place the configs in alphabet order
     AppExecutionConfig,
@@ -650,6 +691,7 @@ class FeatureConfig(
     UpdateConfig,
     WorkflowConfig,
     WorkspaceConfig,
+    LoginConfig,
     # hosted services config
     HostedServiceConfig,
     CeleryBeatConfig,
