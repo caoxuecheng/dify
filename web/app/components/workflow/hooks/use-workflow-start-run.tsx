@@ -59,7 +59,7 @@ export const useWorkflowStartRun = () => {
       setShowDebugAndPreviewPanel(true)
       setShowInputsPanel(true)
     }
-  }, [store, workflowStore, featuresStore, handleCancelDebugAndPreviewPanel, handleRun, doSyncWorkflowDraft, isFromStartNode, t, currentModel, rerankDefaultModel, checkKnowledgeRetrievalValid])
+  }, [store, workflowStore, featuresStore, handleCancelDebugAndPreviewPanel, handleRun, doSyncWorkflowDraft])
 
   const handleWorkflowStartRunInChatflow = useCallback(async () => {
     const {
