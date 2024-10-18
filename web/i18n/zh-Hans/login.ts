@@ -61,6 +61,7 @@ const translation = {
     passwordEmpty: '密码不能为空',
     passwordInvalid: '密码必须包含字母和数字，且长度不小于8位',
     passwordLengthInValid: '密码必须至少为 8 个字符',
+    registrationNotAllowed: '账户不存在，请联系系统管理员注册账户',
   },
   license: {
     tip: '启动 Dify 社区版之前, 请阅读 GitHub 上的',
@@ -96,7 +97,8 @@ const translation = {
   setYourAccount: '设置您的账户',
   enterYourName: '请输入用户名',
   back: '返回',
-  noLoginMethod: '请联系管理员添加身份认证方式',
+  noLoginMethod: '未配置身份认证方式',
+  noLoginMethodTip: '请联系系统管理员添加身份认证方式',
 }
 
 export default translation

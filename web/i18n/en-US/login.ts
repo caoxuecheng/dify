@@ -61,6 +61,7 @@ const translation = {
     passwordEmpty: 'Password is required',
     passwordLengthInValid: 'Password must be at least 8 characters',
     passwordInvalid: 'Password must contain letters and numbers, and the length must be greater than 8',
+    registrationNotAllowed: 'Account not found. Please contact the system admin to register.',
   },
   license: {
     tip: 'Before starting Dify Community Edition, read the GitHub',
@@ -95,7 +96,8 @@ const translation = {
   setYourAccount: 'Set Your Account',
   enterYourName: 'Please enter your username',
   back: 'Back',
-  noLoginMethod: 'Please contact the system admin to add an authentication method.',
+  noLoginMethod: 'Authentication method not configured',
+  noLoginMethodTip: 'Please contact the system admin to add an authentication method.',
 }
 
 export default translation
