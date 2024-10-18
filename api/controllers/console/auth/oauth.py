@@ -18,6 +18,7 @@ from models.account import AccountStatus
 from services.account_service import AccountService, RegisterService, TenantService
 from services.errors.account import AccountNotFoundError
 from services.errors.workspace import WorkSpaceNotAllowedCreateError, WorkSpaceNotFoundError
+from services.feature_service import FeatureService
 
 from .. import api
 
@@ -146,7 +147,7 @@ def _generate_account(provider: str, user_info: OAuthUserInfo):
     if account:
         tenant = TenantService.get_join_tenants(account)
         if not tenant:
-            if not dify_config.ALLOW_CREATE_WORKSPACE:
+            if not FeatureService.system_features.is_allow_create_workspace:
                 raise WorkSpaceNotAllowedCreateError()
             else:
                 tenant = TenantService.create_tenant(f"{account.name}'s Workspace")
@@ -155,7 +156,7 @@ def _generate_account(provider: str, user_info: OAuthUserInfo):
                 tenant_was_created.send(tenant)
 
     if not account:
-        if not dify_config.ALLOW_REGISTER:
+        if not FeatureService.system_features.is_allow_register:
             raise AccountNotFoundError()
         account_name = user_info.name or "Dify"
         account = RegisterService.register(

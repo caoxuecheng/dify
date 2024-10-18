@@ -663,7 +663,7 @@ class LoginConfig(BaseSettings):
     )
     ALLOW_REGISTER: bool = Field(
         description="whether to enable register",
-        default=True,
+        default=False,
     )
     ALLOW_CREATE_WORKSPACE: bool = Field(
         description="whether to enable create workspace",
