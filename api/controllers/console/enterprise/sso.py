@@ -1,9 +1,7 @@
 from flask import current_app
-
-from .. import api
-
 from flask_restful import Resource
 
+from .. import api
 from ..auth.oauth import get_oauth_providers
 
 

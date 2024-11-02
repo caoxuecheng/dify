@@ -1,4 +1,3 @@
-from services.enterprise.base import EnterpriseRequest
 
 
 class EnterpriseService:
