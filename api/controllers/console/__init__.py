@@ -48,6 +48,9 @@ from .datasets import (
     website,
 )
 
+# Import sso controllers
+from .enterprise import sso
+
 # Import explore controllers
 from .explore import (
     audio,

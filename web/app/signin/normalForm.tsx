@@ -8,10 +8,12 @@ import MailAndCodeAuth from './components/mail-and-code-auth'
 import MailAndPasswordAuth from './components/mail-and-password-auth'
 import SocialAuth from './components/social-auth'
 import SSOAuth from './components/sso-auth'
+import Button from '@/app/components/base/button'
 import cn from '@/utils/classnames'
 import { getSystemFeatures, invitationCheck } from '@/service/common'
 import { defaultSystemFeatures } from '@/types/feature'
 import Toast from '@/app/components/base/toast'
+import { getUserOAuth2SSOUrl } from '@/service/sso'
 import useRefreshToken from '@/hooks/use-refresh-token'
 import { IS_CE_EDITION } from '@/config'
 
@@ -32,6 +34,13 @@ const NormalForm = () => {
   const [workspaceName, setWorkSpaceName] = useState('')
 
   const isInviteLink = Boolean(invite_token && invite_token !== 'null')
+
+  const handleSSOLogin = () => {
+    getUserOAuth2SSOUrl().then((res) => {
+      document.cookie = `user-oauth2-state=${res.state}`
+      router.push(res.url)
+    })
+  }
 
   const init = useCallback(async () => {
     try {
@@ -131,6 +140,7 @@ const NormalForm = () => {
               </>}
             </>
           }
+          <Button tabIndex={2} variant='primary' onClick={handleSSOLogin} className="w-full">SSO</Button>
           {allMethodsAreDisabled && <>
             <div className="p-4 rounded-lg bg-gradient-to-r from-workflow-workflow-progress-bg-1 to-workflow-workflow-progress-bg-2">
               <div className='flex items-center justify-center w-10 h-10 rounded-xl bg-components-card-bg shadow shadows-shadow-lg mb-2'>

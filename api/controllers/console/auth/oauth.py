@@ -12,7 +12,7 @@ from constants.languages import languages
 from events.tenant_event import tenant_was_created
 from extensions.ext_database import db
 from libs.helper import extract_remote_ip
-from libs.oauth import GitHubOAuth, GoogleOAuth, OAuthUserInfo
+from libs.oauth import CasdoorOAuth, GitHubOAuth, GoogleOAuth, OAuthUserInfo
 from models import Account
 from models.account import AccountStatus
 from services.account_service import AccountService, RegisterService, TenantService
@@ -25,6 +25,15 @@ from .. import api
 
 def get_oauth_providers():
     with current_app.app_context():
+        if not dify_config.CASDOOR_CLIENT_ID or not dify_config.CASDOOR_CLIENT_SECRET:
+            casdoor_oauth = None
+        else:
+            casdoor_oauth = CasdoorOAuth(
+                client_id=dify_config.CASDOOR_CLIENT_ID,
+                client_secret=dify_config.CASDOOR_CLIENT_SECRET,
+                redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/casdoor",
+            )
+
         if not dify_config.GITHUB_CLIENT_ID or not dify_config.GITHUB_CLIENT_SECRET:
             github_oauth = None
         else:
@@ -42,7 +51,7 @@ def get_oauth_providers():
                 redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/google",
             )
 
-        OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth}
+        OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth, "casdoor": casdoor_oauth}
         return OAUTH_PROVIDERS
 
 
@@ -112,7 +121,7 @@ class OAuthCallback(Resource):
             db.session.commit()
 
         try:
-            TenantService.create_owner_tenant_if_not_exist(account)
+            TenantService.create_and_join_tenant(account=account, name="admin's Workspace")
         except Unauthorized:
             return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Workspace not found.")
         except WorkSpaceNotAllowedCreateError:

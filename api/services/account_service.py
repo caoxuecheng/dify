@@ -485,6 +485,24 @@ def _get_login_cache_key(*, account_id: str, token: str):
 
 
 class TenantService:
+
+    @staticmethod
+    def create_and_join_tenant(account: Account, name: str):
+        """Create owner tenant if not exist"""
+        available_ta = (
+            TenantAccountJoin.query.filter_by(account_id=account.id).order_by(TenantAccountJoin.id.asc()).first()
+        )
+
+        if available_ta:
+            return
+
+        tenant = Tenant.query.filter_by(name=name).first()
+
+        TenantService.create_tenant_member(tenant, account, role="normal")
+        account.current_tenant = tenant
+        db.session.commit()
+        tenant_was_created.send(tenant)
+
     @staticmethod
     def create_tenant(name: str, is_setup: Optional[bool] = False) -> Tenant:
         """Create tenant"""
