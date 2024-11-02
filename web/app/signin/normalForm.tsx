@@ -10,6 +10,7 @@ import classNames from '@/utils/classnames'
 import { IS_CE_EDITION, SUPPORT_MAIL_LOGIN, apiPrefix, emailRegex } from '@/config'
 import Button from '@/app/components/base/button'
 import { login, oauth } from '@/service/common'
+import { getUserOAuth2SSOUrl } from '@/service/sso'
 import { getPurifyHref } from '@/utils'
 import useRefreshToken from '@/hooks/use-refresh-token'
 
@@ -78,6 +79,14 @@ const NormalForm = () => {
   const [password, setPassword] = useState('')
 
   const [isLoading, setIsLoading] = useState(false)
+
+  const handleSSOLogin = () => {
+    getUserOAuth2SSOUrl().then((res) => {
+      document.cookie = `user-oauth2-state=${res.state}`
+      router.push(res.url)
+    })
+  }
+
   const handleEmailPasswordLogin = async () => {
     if (!emailRegex.test(email)) {
       Toast.notify({
@@ -268,6 +277,12 @@ const NormalForm = () => {
                     disabled={isLoading}
                     className="w-full"
                   >{t('login.signBtn')}</Button>
+                  <Button
+                    tabIndex={1}
+                    onClick={handleSSOLogin}
+                    disabled={isLoading}
+                    className="w-full"
+                  >{t('login.sso')}</Button>
                 </div>
               </form>
             </>

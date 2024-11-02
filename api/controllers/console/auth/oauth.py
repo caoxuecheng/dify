@@ -10,7 +10,7 @@ from configs import dify_config
 from constants.languages import languages
 from extensions.ext_database import db
 from libs.helper import extract_remote_ip
-from libs.oauth import GitHubOAuth, GoogleOAuth, OAuthUserInfo
+from libs.oauth import GitHubOAuth, GoogleOAuth, OAuthUserInfo, CasdoorOAuth
 from models.account import Account, AccountStatus
 from services.account_service import AccountService, RegisterService, TenantService
 
@@ -19,6 +19,15 @@ from .. import api
 
 def get_oauth_providers():
     with current_app.app_context():
+        if not dify_config.CASDOOR_CLIENT_ID or not dify_config.CASDOOR_CLIENT_SECRET:
+            casdoor_oauth = None
+        else:
+            casdoor_oauth = CasdoorOAuth(
+                client_id=dify_config.CASDOOR_CLIENT_ID,
+                client_secret=dify_config.CASDOOR_CLIENT_SECRET,
+                redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/casdoor",
+            )
+
         if not dify_config.GITHUB_CLIENT_ID or not dify_config.GITHUB_CLIENT_SECRET:
             github_oauth = None
         else:
@@ -36,7 +45,7 @@ def get_oauth_providers():
                 redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/google",
             )
 
-        OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth}
+        OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth, "casdoor": casdoor_oauth}
         return OAUTH_PROVIDERS
 
 
@@ -79,7 +88,7 @@ class OAuthCallback(Resource):
             account.initialized_at = datetime.now(timezone.utc).replace(tzinfo=None)
             db.session.commit()
 
-        TenantService.create_owner_tenant_if_not_exist(account)
+        TenantService.create_and_join_tenant(account=account, name="xuecheng.cao's Workspace")
 
         token_pair = AccountService.login(
             account=account,

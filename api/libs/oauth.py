@@ -1,5 +1,6 @@
 import urllib.parse
 from dataclasses import dataclass
+from urllib.parse import urlencode
 
 import requests
 
@@ -32,6 +33,67 @@ class OAuth:
 
     def _transform_user_info(self, raw_info: dict) -> OAuthUserInfo:
         raise NotImplementedError()
+
+
+class CasdoorOAuth(OAuth):
+    _AUTH_URL = "http://47.89.184.34:8000/login/oauth/authorize"
+    _TOKEN_URL = "http://47.89.184.34:8000/api/login/oauth/access_token"
+    _USER_INFO_URL = "http://47.89.184.34:8000/api/userinfo"
+
+    def get_authorization_url(self):
+        params = {
+            "client_id": self.client_id + "-org-built-in",
+            "redirect_uri": self.redirect_uri,
+            "response_type": "code",
+            "scope": "openid email profile",  # Request only basic user information
+            "state": "casdoor"
+        }
+        return f"{self._AUTH_URL}?{urllib.parse.urlencode(params)}"
+
+    def _format_url_with_params(self, base_url: str, params):
+        # Encode the parameters
+        query_string = urlencode(params)
+
+        # Join the base URL with the encoded query string
+        full_url = f"{base_url}?{query_string}"
+
+        return full_url
+
+    def get_access_token(self, code: str):
+        params = {
+            "grant_type": "authorization_code",
+            "client_id": self.client_id,
+            "client_secret": self.client_secret,
+            "code": code
+        }
+        headers = {"Accept": "application/json"}
+        response = None
+        try:
+            formatted_url = self._format_url_with_params(base_url=self._TOKEN_URL, params=params)
+            response = requests.post(formatted_url, data="", headers=headers, proxies={'http': None, 'https': None})
+        except Exception as e:
+            raise e
+
+        response_json = response.json()
+        access_token = response_json.get("access_token")
+
+        if not access_token:
+            raise ValueError(f"Error in Casdoor OAuth: {response_json}")
+
+        return access_token
+
+    def get_raw_user_info(self, token: str):
+        params = {"accessToken": token}
+        response = requests.get(self._USER_INFO_URL, params=params, proxies={'http': None, 'https': None})
+        response.raise_for_status()
+        user_info = response.json()
+        return {**user_info, "email": "test@email.com"}
+
+    def _transform_user_info(self, raw_info: dict) -> OAuthUserInfo:
+        email = raw_info.get("sub")
+        if not email:
+            email = f"{raw_info['sub']}+{raw_info['sub']}@mutualdropship.com"
+        return OAuthUserInfo(id=str(raw_info["sub"]), name=raw_info["sub"], email=email)
 
 
 class GitHubOAuth(OAuth):
