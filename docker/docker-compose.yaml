@@ -227,11 +227,14 @@ x-shared-env: &shared-api-worker-env
   HTTP_REQUEST_NODE_MAX_BINARY_SIZE: ${HTTP_REQUEST_NODE_MAX_BINARY_SIZE:-10485760}
   HTTP_REQUEST_NODE_MAX_TEXT_SIZE: ${HTTP_REQUEST_NODE_MAX_TEXT_SIZE:-1048576}
   APP_MAX_EXECUTION_TIME: ${APP_MAX_EXECUTION_TIME:-12000}
+  ENTERPRISE_ENABLED: ${ENTERPRISE_ENABLED:-false}
+  CASDOOR_CLIENT_ID: ${CASDOOR_CLIENT_ID:-}
+  CASDOOR_CLIENT_SECRET: ${CASDOOR_CLIENT_SECRET:-}
 
 services:
   # API service
   api:
-    image: langgenius/dify-api:0.10.0
+    image: registry.cn-hangzhou.aliyuncs.com/mutual-dropshipping/dify-api:0.10.0
     restart: always
     environment:
       # Use the shared environment variables.
@@ -251,7 +254,7 @@ services:
   # worker service
   # The Celery worker for processing the queue.
   worker:
-    image: langgenius/dify-api:0.10.0
+    image: registry.cn-hangzhou.aliyuncs.com/mutual-dropshipping/dify-api:0.10.0
     restart: always
     environment:
       # Use the shared environment variables.
@@ -270,7 +273,7 @@ services:
 
   # Frontend web application.
   web:
-    image: langgenius/dify-web:0.10.0
+    image: registry.cn-hangzhou.aliyuncs.com/mutual-dropshipping/dify-web:0.10.0
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}

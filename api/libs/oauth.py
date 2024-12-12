@@ -37,9 +37,9 @@ class OAuth:
 
 
 class CasdoorOAuth(OAuth):
-    _AUTH_URL = "http://47.89.184.34:8000/login/oauth/authorize"
-    _TOKEN_URL = "http://47.89.184.34:8000/api/login/oauth/access_token"
-    _USER_INFO_URL = "http://47.89.184.34:8000/api/userinfo"
+    _AUTH_URL = "https://uic.mutualdropship.com/login/oauth/authorize"
+    _TOKEN_URL = "https://uic.mutualdropship.com/api/login/oauth/access_token"
+    _USER_INFO_URL = "https://uic.mutualdropship.com/api/get-account"
 
     def get_authorization_url(self):
         params = {
@@ -88,13 +88,13 @@ class CasdoorOAuth(OAuth):
         response = requests.get(self._USER_INFO_URL, params=params, proxies={'http': None, 'https': None})
         response.raise_for_status()
         user_info = response.json()
-        return {**user_info, "email": "test@email.com"}
+        return {**user_info}
 
     def _transform_user_info(self, raw_info: dict) -> OAuthUserInfo:
-        email = raw_info.get("sub")
-        if not email:
-            email = f"{raw_info['sub']}@mutualdropship.com"
-        return OAuthUserInfo(id=str(raw_info["sub"]), name=raw_info["sub"], email=email)
+        user_id = raw_info.get("sub")
+        name = raw_info.get("name")
+        data = raw_info.get("data")
+        return OAuthUserInfo(id=str(user_id), name=name, email=data.get("email"))
 
 
 class GitHubOAuth(OAuth):
